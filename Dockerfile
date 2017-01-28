@@ -39,6 +39,9 @@ RUN chmod +x /config_diamond.sh
 
 ADD entrypoint.sh /
 
+VOLUME ["/usr/local/share/diamond/collectors/"]
+VOLUME ["/etc/diamond/collectors/"]
+VOLUME ["/etc/diamond/handlers/"]
 
 #start
 ENTRYPOINT ["/entrypoint.sh"]
