@@ -4,7 +4,7 @@
 FROM python:2.7.13
 
 # Install dependencies
-ENV HANDLERS=diamond.handler.graphite.GraphiteHandler \
+ENV HANDLERS=diamond.handler.stats_d.StatsdHandler,diamond.handler.graphite.GraphiteHandler \
     GRAPHITE_HOST=127.0.0.1 \
     GRAPHITE_PORT=2003 \
     STATSD_HOST=127.0.0.1 \
@@ -30,7 +30,7 @@ RUN chmod +x /config_diamond.sh
 
 ADD entrypoint.sh /
 
-VOLUME ["/usr/local/share/diamond/collectors", "/etc/diamond"]
+VOLUME ["/usr/local/share/diamond/collectors", "/usr/local/share/diamond/handlers", "/etc/diamond"]
 
 #start
 ENTRYPOINT ["/entrypoint.sh"]
