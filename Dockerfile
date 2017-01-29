@@ -1,31 +1,22 @@
 # Docker image containing the Diamond collector
 #
 # VERSION               0.0.1
-FROM      ubuntu:14.04
-MAINTAINER Pierig Le Saux <lesaux@pythian.com>
+FROM python:2.7.13
 
 # Install dependencies
-ENV DEBIAN_FRONTEND noninteractive
-ENV HANDLERS diamond.handler.graphite.GraphiteHandler
-ENV GRAPHITE_HOST 127.0.0.1
-ENV GRAPHITE_PORT 2003
-ENV STATSD_HOST 127.0.0.1
-ENV STATSD_PORT 8125
-ENV DOCKER_HOSTNAME docker-hostname
-ENV INTERVAL 5
+ENV HANDLERS=diamond.handler.graphite.GraphiteHandler \
+    GRAPHITE_HOST=127.0.0.1 \
+    GRAPHITE_PORT=2003 \
+    STATSD_HOST=127.0.0.1 \
+    STATSD_PORT=8125 \
+    DOCKER_HOSTNAME=docker-hostname \
+    INTERVAL=5
 
 RUN apt-get update && \
-    apt-get install -y python-setuptools make pbuilder python-mock python-configobj python-support cdbs git python-psutil python-pip && \
-    easy_install statsd && \
-    pip install diamond && \
-    sudo mkdir /usr/local/share/diamond/collectors/dockercontainer && \
+    pip install diamond statsd && \
+    mkdir /usr/local/share/diamond/collectors/dockercontainer && \
     find /usr/local/share/diamond/collectors/  -type f -name "*.py" -print0 | xargs -0 sed -i 's/\/proc/\/host_proc/g' && \
-    sudo pip install docker-py && \
-    apt-get autoremove -y git make pbuilder python-mock python-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /Diamond /diamond-DockerContainerCollector /docker-py && \
-    rm -rf /etc/diamond
+    pip install docker-py
 
 #add diamond config dir
 ADD diamond /etc/diamond/
@@ -39,9 +30,7 @@ RUN chmod +x /config_diamond.sh
 
 ADD entrypoint.sh /
 
-VOLUME ["/usr/local/share/diamond/collectors/"]
-VOLUME ["/etc/diamond/collectors/"]
-VOLUME ["/etc/diamond/handlers/"]
+VOLUME ["/usr/local/share/diamond/collectors", "/etc/diamond"]
 
 #start
 ENTRYPOINT ["/entrypoint.sh"]
